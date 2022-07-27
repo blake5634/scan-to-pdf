@@ -31,10 +31,13 @@ if nargs < 2 or nargs > 3:
     help()
     quit()
     
+ADF_SOURCE = 0
+FLAT_SOURCE = 1
+
 INFO_ONLY = False
 OPTIONS_ONLY = False
 outfile_root_name = sys.argv[nargs-1] # last arg is file name root
-DocSource = 0  # ADF
+DocSource = ADF_SOURCE  # ADF
 ColorBW_Mode = 'Color'
  
 # if an option it is arg[1]
@@ -45,7 +48,7 @@ if argval[0] == '-':
     if argval in ['-bw','-mono']:
         ColorBW_Mode = 'Gray'
     elif argval in ['-f','-flatbed']:
-        DocSource = 1
+        DocSource = FLAT_SOURCE
     elif argval == '-options':
         OPTIONS_ONLY = True
     elif argval == '-devices':
@@ -61,8 +64,21 @@ np = -1  # until issue is fixed, just scan all pages in ADF
 
 # the device is always the same in my office:  
 
-sc_dev = ('escl:https://192.168.0.56:443', 'HP', 'OfficeJet Pro 9010 series [5F68CC] SSL', 'platen,adf scanner')
-
+'''
+#2
+sc_dev = ('escl:https://192.168.0.56:443', 'HP', 'OfficeJet Pro 9010 series [5F68CC]', 'platen,adf scanner')
+#3
+sc_dev = ('escl:http://[fe80::da0f:99ff:fe08:2193]:8080', 'HP', 'Color LaserJet MFP M277dw (2AEB7A)', 'platen,adf scanner')
+#0
+sc_dev = ('hpaio:/net/hp_color_laserjet_mfp_m277dw?ip=192.168.0.77&queue=false', 'Hewlett-Packard', 'hp_color_laserjet_mfp_m277dw', 'all-in-one')
+#1
+sc_dev = ('hpaio:/net/hp_officejet_pro_9010_series?ip=192.168.0.56&queue=false', 'Hewlett-Packard', 'hp_officejet_pro_9010_series', 'all-in-one')
+#2
+sc_dev = ('escl:https://192.168.0.56:443', 'HP', 'OfficeJet Pro 9010 series [5F68CC]', 'platen,adf scanner')
+'''
+#custom 
+##     use >hp-makeruri hpmakeuri 192.168.0.56 for sc_dev[0] - make up rest
+sc_dev = ('hpaio:/net/HP_OfficeJet_Pro_9010_series?ip=192.168.0.56', 'Hewlett-Packard', 'hp-OfficeJetPro9015e', 'all-in-one')
 
 if INFO_ONLY:
     #
@@ -100,7 +116,7 @@ try:
     dev = sane.open(sc_dev[0])
     DEV_OPEN = True
 except:
-    print("Couldn't open scanner ", sc_dev[1])
+    print("scan2PDF: Couldn't open scanner ", sc_dev[1])
     quit()
 #
 # Get or Set some options
@@ -124,7 +140,7 @@ try:
     dev.source = [ 'ADF','Flatbed'][DocSource]
     dev.resolution = 200
 except:
-    print('problem setting Scanner Options: try >scan2PDF -options')
+    print('scan2PDF: problem setting Scanner Options: try >scan2PDF -options')
     quit()
 
 #  Not sure what should be correct values!!!
