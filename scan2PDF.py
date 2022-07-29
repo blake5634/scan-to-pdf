@@ -3,7 +3,7 @@
 from __future__ import print_function
 import sane
 import time
-import os, sys
+import os, sys, subprocess
 #from PIL import Image
 
 #
@@ -17,12 +17,15 @@ def help():
     print('   Options:')
     print('     -f -F -Flatbed -flatbed    (ADF is default)')
     print('     -bw -Mono                  (Grey level scan: Color is default)')
+    print('     -id, identify IPADDR      Get and store scanner URI')
     print('     -Options                   List device Options')
     print('     -Devices                   List available Scanners')
     print('     -Help                      this!')
 #
 # Initialize sane
 #
+
+
 ver = sane.init()
 print('SANE version:', ver)
 
@@ -47,6 +50,25 @@ print(' I got option: [{:}]'.format(argval))
 if argval[0] == '-':
     if argval in ['-bw','-mono']:
         ColorBW_Mode = 'Gray'
+    elif argval in ['-id','-identify']:
+        ipadd = sys.argv[2]
+        res = subprocess.check_output(['hp-makeuri',ipadd],universal_newlines=True).splitlines()
+        print('\n\n    OUTPUT:')
+        for line in res:
+            #print(line)
+            if 'SANE URI:' in line:
+                pts = line.split(':')
+                uri = (pts[1]+':'+pts[2]).strip()
+                print ('I found the URI:  ', uri)
+        print('saving uri ...')
+        home = os.path.expanduser('~')
+        fname = home + '/.scannerURI'
+        print('   to file: ',fname)
+        f = open(fname,'w')
+        print(uri,file=f)
+        f.close()
+        print('    scanner URI successfully saved')
+        quit()
     elif argval in ['-f','-flatbed']:
         DocSource = FLAT_SOURCE
     elif argval == '-options':
@@ -60,6 +82,20 @@ if argval[0] == '-':
 
 # negative np means scan everything in ADF
 np = -1  # until issue is fixed, just scan all pages in ADF 
+
+###
+#
+#   Automate the scanner ID process (and store the URI)
+#
+
+urifilename = os.path.expanduser('~/.scannerURI')
+try:
+    f = open(urifilename, 'r')
+except:
+    print('\n\n   Scanner address (uri) is not found.  Please run the "-id" option to fix this.\n\n')
+    help()
+    quit()
+
 
 
 # the device is always the same in my office:  
