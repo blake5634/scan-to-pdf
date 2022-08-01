@@ -227,7 +227,11 @@ if len(page_series) > 0:
         #print('Convert cmd: ', conv_cmd)
         os.system(conv_cmd)
         cat_cmd += ' '+pn.replace('.png','.pdf')
-    cat_cmd += ' cat output ' + outfile_root_name+'.pdf'
+        if outfile_root_name[-4:] == '.pdf':
+            fname = outfile_root_name
+        else:
+            fname = outfile_root_name+'.pdf'
+    cat_cmd += ' cat output ' + fname
     #print('executing: [{:}]'.format(cat_cmd))
     os.system(cat_cmd)
     # remove single page files
